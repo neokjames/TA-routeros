@@ -1,52 +1,65 @@
 # Technology Add-On for Mikrotik RouterOS
 
-The Splunk Technology Add-On for Mikrotik RouterOS provides extractions and CIM normalization for Mikrotik RouterOS devices.
-CIM data models network traffic, name resolution (DNS), DHCP and authentication are used.
+A Splunk Technology Add-On that parses Mikrotik RouterOS syslog events and normalizes them to the Splunk Common Information Model (CIM).
 
-## Activation of logging using Mikrotik RouterOS
+Supports both RouterOS v6 and v7 syslog formats. CIM data models covered: **Authentication**, **Network_Traffic** (firewall: forward, srcnat, dstnat chains), **Network_Resolution** (DNS), and **Network_Sessions** (DHCP).
 
-To activate logging of RouterOS events activate Syslog logging. Use a Syslog server or activate a UDP input on Splunk Forwarder.
+## Activation of logging on RouterOS
 
-To activate logging use the CLI
+Send RouterOS events to a syslog server (a Splunk forwarder running a UDP/TCP input, or a syslog daemon Splunk monitors).
 
-- create a logging action
+Create a logging action and profile via the RouterOS CLI:
+
+```
 /system logging action
-add name=syslogbw remote=1.2.3.4 remote-port=5200 src-address=2.3.4.5 target=remote
+add name=splunk remote=1.2.3.4 remote-port=5200 src-address=2.3.4.5 target=remote
 
-- create a logging profile
 /system logging
 set 0 topics=info,!firewall
-add action=syslog topics=info
-add action=syslog topics=warning
-add action=syslog topics=critical
-add action=syslog topics=error
-add action=syslog topics=dns,!debug
+add action=splunk topics=info
+add action=splunk topics=warning
+add action=splunk topics=critical
+add action=splunk topics=error
+add action=splunk topics=dns,!debug
+```
 
 ## Firewall logging
 
-You need to enable logging for every rule you want to analyse. To do so specify a rulename and an action. Action needs to be "drop" or "accept".
-use "log=yes log-prefix="rulename drop|accept" when creating a rule.
+Logging must be enabled per rule. Set `log=yes` and use a `log-prefix` of the form `"<rulename> <action>"` where action is `accept` or `drop` (RouterOS v7 also emits `forward`, `srcnat`, `dstnat` as the chain).
 
-Here is an example for a drop rule:
+Drop rule example:
+
+```
 add action=drop chain=input connection-nat-state=!dstnat connection-state=new in-interface=ether1 log=yes log-prefix="input_wan drop"
+```
 
-This is an example for a forward rule:
+Forward (accept) rule example:
+
+```
 add action=accept chain=forward dst-address=0.0.0.0/0 in-interface=mynet log=yes log-prefix="fwd_bw_internet accept" out-interface=ether1 src-address=192.168.1.0/24
+```
 
-## Installation and Deployment of TA-routeros
+## Installation
 
-Download this TA and place it in etc/apps on your Searchhead, Indexers and Universal Forwarders (Syslog servers).
+Place this TA in `$SPLUNK_HOME/etc/apps/` on your search heads, indexers, and any forwarders that ingest the syslog stream.
 
-Here is an example inputs.conf:
-<pre>
+Example `inputs.conf`:
+
+```
 [monitor:///var/log/cases/routeros/*/*.log]
 index = batchworks
 sourcetype = routeros
 host_segment = 5
 disabled = 0
-</pre>
+```
 
-Verify the data input and extraction works by searching for
-<pre>
+Verify ingestion and CIM normalization:
+
+```
 sourcetype=routeros tag=network tag=communicate
-</pre>
+sourcetype=routeros tag=authentication
+```
+
+## Credits
+
+Forked from [schose/TA-routeros](https://github.com/schose/TA-routeros) by Andreas Roth. This fork removes the RouterOS API modular inputs to focus on syslog ingestion, adds RouterOS v7 event format support, and tightens CIM Network_Traffic compliance.
