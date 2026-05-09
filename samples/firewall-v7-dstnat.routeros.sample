@@ -1,4 +1,4 @@
-firewall,info honeypot_http_in accept dstnat: in:ether1-nbn out:(unknown 0), connection-state:new src-mac 02:00:00:00:00:0a, proto TCP (SYN), 192.0.2.100:40000->198.51.100.5:80, len 40
-firewall,info honeypot_ssh_in accept dstnat: in:ether1-nbn out:(unknown 0), connection-state:new src-mac 02:00:00:00:00:0a, proto TCP (SYN), 203.0.113.150:8509->198.51.100.5:22, len 60
-firewall,info honeypot_http_in accept dstnat: in:ether1-nbn out:(unknown 0), connection-state:new src-mac 02:00:00:00:00:0a, proto TCP (SYN), 192.0.2.110:34096->198.51.100.5:80, len 60
-firewall,info honeypot_ssh_in accept dstnat: in:ether1-nbn out:(unknown 0), connection-state:new src-mac 02:00:00:00:00:0a, proto TCP (SYN), 203.0.113.160:42052->198.51.100.5:22, len 60
+firewall,info dnat_rule_1 accept dstnat: in:ether1 out:(unknown 0), connection-state:new src-mac 02:00:00:00:00:0a, proto TCP (SYN), 192.0.2.100:40000->198.51.100.5:80, len 40
+firewall,info dnat_rule_2 accept dstnat: in:ether1 out:(unknown 0), connection-state:new src-mac 02:00:00:00:00:0a, proto TCP (SYN), 203.0.113.150:8509->198.51.100.5:22, len 60
+firewall,info dnat_rule_1 accept dstnat: in:ether1 out:(unknown 0), connection-state:new src-mac 02:00:00:00:00:0a, proto TCP (SYN), 192.0.2.110:34096->198.51.100.5:80, len 60
+firewall,info dnat_rule_2 accept dstnat: in:ether1 out:(unknown 0), connection-state:new src-mac 02:00:00:00:00:0a, proto TCP (SYN), 203.0.113.160:42052->198.51.100.5:22, len 60
