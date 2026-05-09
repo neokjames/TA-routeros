@@ -1,9 +1,26 @@
-## v0.83
+## v1.0.0
 
-- updated librouteros from https://github.com/luqasz/librouteros/tree/2.x/librouteros to have compability to RouterOS v6.45.1 upwards
-- removed routeros libs from bin
+Forked from https://github.com/schose/TA-routeros.
+
+- Removed RouterOS API modular inputs (routerosint, routerosinv, routerosperf) and
+  the bundled librouteros / chainmap libraries; this TA is now syslog-only
+- Added RouterOS v7 firewall event support across the forward, srcnat (masquerade),
+  and dstnat chains, capturing connection_state, NAT translation, packet length
+  (bytes), TCP flags, and ICMP type/code
+- Added RouterOS v7 logout event support (eventtype routeros_auth_logout)
+- Tightened CIM Network_Traffic compliance: transport is now lowercased per spec
+- Fixed leading-space bug in routeros_auth.csv and routeros_message_type.csv
+  lookups that was producing " success" / " Query" instead of "success" / "Query"
+- Added FIELDALIAS host AS dest so authentication events populate the CIM
+  Authentication dest field
 
 ## v0.9
 
 - works with python3 as default
-- testet on splunk 8.1
+- tested on splunk 8.1
+
+## v0.83
+
+- updated librouteros from https://github.com/luqasz/librouteros/tree/2.x/librouteros
+  to have compatibility with RouterOS v6.45.1 upwards
+- removed routeros libs from bin
