@@ -9,6 +9,9 @@ venv/
 *.tar.gz
 *.spl
 
+# Local Claude Code guidance — not shared
+CLAUDE.md
+
 # OS / editor
 .DS_Store
 Thumbs.db
