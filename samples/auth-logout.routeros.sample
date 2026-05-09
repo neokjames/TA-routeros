@@ -1,0 +1,5 @@
+system,info,account user admin logged out from 192.168.10.10 via winbox
+system,info,account user admin logged out from 192.168.10.10 via winbox
+system,info,account user readonly logged out from 192.168.10.20 via api
+system,info,account user admin logged out from 192.168.10.30 via ssh
+system,info,account user admin logged out from 192.168.10.40 via web
