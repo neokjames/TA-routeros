@@ -1,0 +1,4 @@
+firewall,info masquerade_out allow srcnat: in:bridge out:ether1-nbn, connection-state:new src-mac 02:00:00:00:00:04, proto UDP, 172.16.0.18:55148->192.0.2.50:443, len 1278
+firewall,info masquerade_out allow srcnat: in:(unknown 0) out:ether1-nbn, connection-state:new proto UDP, 198.51.100.5:33855->203.0.113.53:53, len 71
+firewall,info masquerade_out allow srcnat: in:bridge out:ether1-nbn, connection-state:new src-mac 02:00:00:00:00:05, proto TCP (SYN), 172.16.0.250:57794->192.0.2.60:443, len 60
+firewall,info masquerade_out allow srcnat: in:bridge out:ether1-nbn, connection-state:new src-mac 02:00:00:00:00:06, proto TCP (SYN), 172.16.0.252:50061->203.0.113.70:51413, len 60
