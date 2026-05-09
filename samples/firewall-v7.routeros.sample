@@ -1,0 +1,5 @@
+firewall,info iot_out accept forward: in:vlan10-iot out:ether1-nbn, connection-state:established,snat src-mac 02:00:00:00:00:01, proto TCP (ACK,PSH), 172.16.1.198:53354->192.0.2.10:8883, NAT (172.16.1.198:53354->198.51.100.5:53354)->192.0.2.10:8883, len 363
+firewall,info iot_out accept forward: in:vlan10-iot out:ether1-nbn, connection-state:new src-mac 02:00:00:00:00:02, proto TCP (SYN), 172.16.1.199:35774->203.0.113.20:853, len 64
+firewall,info iot_out accept forward: in:vlan10-iot out:ether1-nbn, connection-state:established,snat src-mac 02:00:00:00:00:03, proto UDP, 172.16.1.197:57504->192.0.2.30:31159, NAT (172.16.1.197:57504->198.51.100.5:57504)->192.0.2.30:31159, len 1252
+firewall,info iot_out accept forward: in:vlan10-iot out:ether1-nbn, connection-state:established,snat src-mac 02:00:00:00:00:01, proto ICMP (type 8, code 0), 172.16.1.198->203.0.113.40, NAT (172.16.1.198->198.51.100.5)->203.0.113.40, len 84
+firewall,info iot_out accept forward: in:vlan10-iot out:ether1-nbn, connection-state:new src-mac 02:00:00:00:00:01, proto ICMP (type 8, code 0), 172.16.1.198->203.0.113.40, len 84
