@@ -1,0 +1,7 @@
+dhcp,info dhcp-server assigned 192.168.20.10 for 02:00:00:00:01:01
+dhcp,info dhcp-server assigned 192.168.20.11 for 02:00:00:00:01:02 device-1
+dhcp,info iot-dhcp assigned 192.168.30.10 for 02:00:00:00:02:01 iot-device-1
+dhcp,info iot-dhcp deassigned 192.168.30.10 for 02:00:00:00:02:01 iot-device-1
+dhcp,info dhcp-server deassigned 192.168.20.11 for 02:00:00:00:01:02 device-1
+dhcp,info guest-dhcp assigned 192.168.40.10 for 02:00:00:00:03:01 guest-device-1
+dhcp,info guest-dhcp deassigned 192.168.40.10 for 02:00:00:00:03:01 guest-device-1
