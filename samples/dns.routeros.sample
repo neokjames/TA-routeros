@@ -1,0 +1,9 @@
+dns query from 192.168.10.10: #63199 example.com. AAAA
+dns query from 192.168.10.10: #63198 example.com. A
+dns done query: #63198 example.com. 192.0.2.10
+dns done query: #63199 dns name exists, but no appropriate record
+dns query from 192.168.10.20: #63197 sub.example.org. A
+dns done query: #63197 sub.example.org. 198.51.100.5
+dns query from 192.168.10.20: #63196 missing.example.org. A
+dns done query: #63196 dns name does not exist
+dns query from 192.168.10.30: #63195 example.net. UNKNOWN (65)
