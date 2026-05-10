@@ -1,0 +1,9 @@
+interface,info ether1 link up (speed 1G, full duplex)
+interface,info ether2 link up (speed 1G, full duplex)
+interface,info ether2 link down
+interface,info ether3 link down
+interface,info ether3 link up (speed 100M, full duplex)
+interface,info ether4 link down
+interface,info ether4 link up (speed 100M, full duplex)
+interface,info ether5 link up (speed 1G, full duplex)
+interface,info ether5 link down
