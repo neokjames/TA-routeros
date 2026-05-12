@@ -1,0 +1,141 @@
+<dashboard version="1.1">
+  <label>RouterOS DNS Activity</label>
+  <description>Overview of DNS queries and responses from Mikrotik RouterOS devices.</description>
+
+  <fieldset submitButton="false" autoRun="true">
+    <input type="time" token="time">
+      <label>Time Range</label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="text" token="index_filter" searchWhenChanged="true">
+      <label>Index</label>
+      <default>network</default>
+    </input>
+    <input type="text" token="host_filter" searchWhenChanged="true">
+      <label>Host filter (wildcards OK)</label>
+      <default>*</default>
+    </input>
+  </fieldset>
+
+  <row>
+    <panel>
+      <title>Total Queries</title>
+      <single>
+        <search>
+          <query>index=$index_filter$ sourcetype=routeros eventtype=routeros_dns_query host=$host_filter$ | stats count</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Unique Clients</title>
+      <single>
+        <search>
+          <query>index=$index_filter$ sourcetype=routeros eventtype=routeros_dns_query host=$host_filter$ | stats dc(src)</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Unique Domains</title>
+      <single>
+        <search>
+          <query>index=$index_filter$ sourcetype=routeros eventtype=routeros_dns_query host=$host_filter$ | stats dc(query)</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </single>
+    </panel>
+    <panel>
+      <title>NXDOMAIN Responses</title>
+      <single>
+        <search>
+          <query>index=$index_filter$ sourcetype=routeros eventtype=routeros_dns_response host=$host_filter$ reply_code=NXDomain | stats count</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="useColors">1</option>
+        <option name="rangeColors">["0x53a051","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="rangeValues">[100,1000,10000]</option>
+      </single>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>Queries Over Time by Record Type</title>
+      <chart>
+        <search>
+          <query>index=$index_filter$ sourcetype=routeros eventtype=routeros_dns_query host=$host_filter$ | timechart count by record_type useother=f</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.legend.placement">right</option>
+      </chart>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>Top Queried Domains</title>
+      <table>
+        <search>
+          <query>index=$index_filter$ sourcetype=routeros eventtype=routeros_dns_query host=$host_filter$ | top limit=20 query | rename query as Domain, count as Count, percent as Percent</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+      </table>
+    </panel>
+    <panel>
+      <title>Top NXDOMAIN Domains</title>
+      <description>Correlates queries and responses by transaction_id + 5-minute bucket. Adjust the bucket if your DNS traffic exceeds ~65k queries per host per 5 min.</description>
+      <table>
+        <search>
+          <query>index=$index_filter$ sourcetype=routeros (eventtype=routeros_dns_query OR eventtype=routeros_dns_response) host=$host_filter$
+| eval bucket=floor(_time/300)
+| stats values(query) as query, values(reply_code) as reply_code by host transaction_id bucket
+| where reply_code="NXDomain"
+| top limit=20 query
+| rename query as Domain, count as Count, percent as Percent</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+      </table>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>Top Querying Clients</title>
+      <table>
+        <search>
+          <query>index=$index_filter$ sourcetype=routeros eventtype=routeros_dns_query host=$host_filter$ | top limit=20 src | rename src as Client, count as Count, percent as Percent</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+      </table>
+    </panel>
+    <panel>
+      <title>Record Type Distribution</title>
+      <chart>
+        <search>
+          <query>index=$index_filter$ sourcetype=routeros eventtype=routeros_dns_query host=$host_filter$ | stats count by record_type | sort -count</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="charting.chart">pie</option>
+      </chart>
+    </panel>
+  </row>
+</dashboard>
