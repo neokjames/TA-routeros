@@ -10,6 +10,10 @@
         <latest>now</latest>
       </default>
     </input>
+    <input type="text" token="index_filter" searchWhenChanged="true">
+      <label>Index</label>
+      <default>network</default>
+    </input>
     <input type="text" token="host_filter" searchWhenChanged="true">
       <label>Host filter (wildcards OK)</label>
       <default>*</default>
@@ -21,7 +25,7 @@
       <title>Total Queries</title>
       <single>
         <search>
-          <query>sourcetype=routeros eventtype=routeros_dns_query host=$host_filter$ | stats count</query>
+          <query>index=$index_filter$ sourcetype=routeros eventtype=routeros_dns_query host=$host_filter$ | stats count</query>
           <earliest>$time.earliest$</earliest>
           <latest>$time.latest$</latest>
         </search>
@@ -32,7 +36,7 @@
       <title>Unique Clients</title>
       <single>
         <search>
-          <query>sourcetype=routeros eventtype=routeros_dns_query host=$host_filter$ | stats dc(src)</query>
+          <query>index=$index_filter$ sourcetype=routeros eventtype=routeros_dns_query host=$host_filter$ | stats dc(src)</query>
           <earliest>$time.earliest$</earliest>
           <latest>$time.latest$</latest>
         </search>
@@ -43,7 +47,7 @@
       <title>Unique Domains</title>
       <single>
         <search>
-          <query>sourcetype=routeros eventtype=routeros_dns_query host=$host_filter$ | stats dc(query)</query>
+          <query>index=$index_filter$ sourcetype=routeros eventtype=routeros_dns_query host=$host_filter$ | stats dc(query)</query>
           <earliest>$time.earliest$</earliest>
           <latest>$time.latest$</latest>
         </search>
@@ -54,7 +58,7 @@
       <title>NXDOMAIN Responses</title>
       <single>
         <search>
-          <query>sourcetype=routeros eventtype=routeros_dns_response host=$host_filter$ reply_code=NXDomain | stats count</query>
+          <query>index=$index_filter$ sourcetype=routeros eventtype=routeros_dns_response host=$host_filter$ reply_code=NXDomain | stats count</query>
           <earliest>$time.earliest$</earliest>
           <latest>$time.latest$</latest>
         </search>
@@ -71,7 +75,7 @@
       <title>Queries Over Time by Record Type</title>
       <chart>
         <search>
-          <query>sourcetype=routeros eventtype=routeros_dns_query host=$host_filter$ | timechart count by record_type useother=f</query>
+          <query>index=$index_filter$ sourcetype=routeros eventtype=routeros_dns_query host=$host_filter$ | timechart count by record_type useother=f</query>
           <earliest>$time.earliest$</earliest>
           <latest>$time.latest$</latest>
         </search>
@@ -87,7 +91,7 @@
       <title>Top Queried Domains</title>
       <table>
         <search>
-          <query>sourcetype=routeros eventtype=routeros_dns_query host=$host_filter$ | top limit=20 query | rename query as Domain, count as Count, percent as Percent</query>
+          <query>index=$index_filter$ sourcetype=routeros eventtype=routeros_dns_query host=$host_filter$ | top limit=20 query | rename query as Domain, count as Count, percent as Percent</query>
           <earliest>$time.earliest$</earliest>
           <latest>$time.latest$</latest>
         </search>
@@ -98,7 +102,7 @@
       <description>Correlates queries and responses by transaction_id + 5-minute bucket. Adjust the bucket if your DNS traffic exceeds ~65k queries per host per 5 min.</description>
       <table>
         <search>
-          <query>sourcetype=routeros (eventtype=routeros_dns_query OR eventtype=routeros_dns_response) host=$host_filter$
+          <query>index=$index_filter$ sourcetype=routeros (eventtype=routeros_dns_query OR eventtype=routeros_dns_response) host=$host_filter$
 | eval bucket=floor(_time/300)
 | stats values(query) as query, values(reply_code) as reply_code by host transaction_id bucket
 | where reply_code="NXDomain"
@@ -116,7 +120,7 @@
       <title>Top Querying Clients</title>
       <table>
         <search>
-          <query>sourcetype=routeros eventtype=routeros_dns_query host=$host_filter$ | top limit=20 src | rename src as Client, count as Count, percent as Percent</query>
+          <query>index=$index_filter$ sourcetype=routeros eventtype=routeros_dns_query host=$host_filter$ | top limit=20 src | rename src as Client, count as Count, percent as Percent</query>
           <earliest>$time.earliest$</earliest>
           <latest>$time.latest$</latest>
         </search>
@@ -126,7 +130,7 @@
       <title>Record Type Distribution</title>
       <chart>
         <search>
-          <query>sourcetype=routeros eventtype=routeros_dns_query host=$host_filter$ | stats count by record_type | sort -count</query>
+          <query>index=$index_filter$ sourcetype=routeros eventtype=routeros_dns_query host=$host_filter$ | stats count by record_type | sort -count</query>
           <earliest>$time.earliest$</earliest>
           <latest>$time.latest$</latest>
         </search>
