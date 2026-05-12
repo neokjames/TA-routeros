@@ -84,6 +84,24 @@
         <option name="charting.legend.placement">right</option>
       </chart>
     </panel>
+    <panel>
+      <title>DNS Response Latency</title>
+      <description>Average and 95th-percentile query-to-response time, derived by correlating query and response events with the same transaction_id within a 5-minute bucket. Only fully-paired queries contribute.</description>
+      <chart>
+        <search>
+          <query>index=$index_filter$ sourcetype=routeros (eventtype=routeros_dns_query OR eventtype=routeros_dns_response) host=$host_filter$
+| eval bucket=floor(_time/300)
+| stats earliest(_time) as qt, latest(_time) as rt, count as events by host, transaction_id, bucket
+| where events=2
+| eval ms = (rt - qt) * 1000
+| timechart avg(ms) as "Avg (ms)", perc95(ms) as "p95 (ms)"</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.legend.placement">right</option>
+      </chart>
+    </panel>
   </row>
 
   <row>
@@ -148,6 +166,47 @@
 | head 20
 | rename src as IP, count as "NXDOMAIN Count"
 | table Hostname IP "NXDOMAIN Count"</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+      </table>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>Newly Observed Domains (last 24h)</title>
+      <description>Domains queried for the first time in the last 24 hours, compared against a 30-day baseline. Useful for spotting phishing first-contact, malware C2, or new device integrations. Search runs over a fixed 30-day window and ignores the time picker.</description>
+      <table>
+        <search>
+          <query>index=$index_filter$ sourcetype=routeros eventtype=routeros_dns_query host=$host_filter$
+| stats earliest(_time) as first_seen, count, values(src_nt_host) as clients by query
+| where first_seen >= relative_time(now(), "-24h")
+| eval "First Seen" = strftime(first_seen, "%Y-%m-%d %H:%M:%S")
+| eval Clients = if(isnull(clients) OR clients="", "-", clients)
+| sort - first_seen
+| head 50
+| rename query as Domain, count as Queries
+| table Domain "First Seen" Queries Clients</query>
+          <earliest>-30d</earliest>
+          <latest>now</latest>
+        </search>
+      </table>
+    </panel>
+    <panel>
+      <title>Long-Subdomain Queries (DNS tunneling indicator)</title>
+      <description>Queries with domain length >= 100 characters. DNS tunneling tools (iodine, dnscat2) pack payload data into long subdomains. Normal hostnames are rarely above 50 characters.</description>
+      <table>
+        <search>
+          <query>index=$index_filter$ sourcetype=routeros eventtype=routeros_dns_query host=$host_filter$
+| eval qlen=len(query)
+| where qlen >= 100
+| stats count as Count, values(src_nt_host) as Hostname, values(src) as IP, max(qlen) as "Max Length" by query
+| eval Hostname = if(isnull(Hostname) OR Hostname="", "-", Hostname)
+| sort - "Max Length"
+| head 20
+| rename query as Domain
+| table Domain "Max Length" Count Hostname IP</query>
           <earliest>$time.earliest$</earliest>
           <latest>$time.latest$</latest>
         </search>
