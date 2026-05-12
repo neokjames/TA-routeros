@@ -1,0 +1,4 @@
+<nav search_view="search" color="#65a637">
+  <view name="routeros_dns" default="true"/>
+  <view name="search"/>
+</nav>
