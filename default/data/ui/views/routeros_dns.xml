@@ -118,14 +118,44 @@
   <row>
     <panel>
       <title>Top Querying Clients</title>
+      <description>Hostname comes from the DHCP lookup populated by the 'Update DHCP Hostname Lookup' scheduled search. Shows '-' if no DHCP mapping is known for that IP.</description>
       <table>
         <search>
-          <query>index=$index_filter$ sourcetype=routeros eventtype=routeros_dns_query host=$host_filter$ | top limit=20 src | rename src as Client, count as Count, percent as Percent</query>
+          <query>index=$index_filter$ sourcetype=routeros eventtype=routeros_dns_query host=$host_filter$
+| stats count by src, src_nt_host
+| eval Hostname = if(isnull(src_nt_host) OR src_nt_host="", "-", src_nt_host)
+| sort -count
+| head 20
+| rename src as IP, count as Count
+| table Hostname IP Count</query>
           <earliest>$time.earliest$</earliest>
           <latest>$time.latest$</latest>
         </search>
       </table>
     </panel>
+    <panel>
+      <title>Top Clients by NXDOMAIN Responses</title>
+      <description>Surfaces clients generating the most non-existent-domain responses. Useful for spotting DGA-style malware, misconfigured devices, or stale bookmarks.</description>
+      <table>
+        <search>
+          <query>index=$index_filter$ sourcetype=routeros (eventtype=routeros_dns_query OR eventtype=routeros_dns_response) host=$host_filter$
+| eval bucket=floor(_time/300)
+| stats values(reply_code) as reply_code, values(src) as src, values(src_nt_host) as src_nt_host by host transaction_id bucket
+| where reply_code="NXDomain"
+| stats count by src, src_nt_host
+| eval Hostname = if(isnull(src_nt_host) OR src_nt_host="", "-", src_nt_host)
+| sort -count
+| head 20
+| rename src as IP, count as "NXDOMAIN Count"
+| table Hostname IP "NXDOMAIN Count"</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+      </table>
+    </panel>
+  </row>
+
+  <row>
     <panel>
       <title>Record Type Distribution</title>
       <chart>
